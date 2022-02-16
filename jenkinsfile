@@ -12,13 +12,4 @@ node('master')
    {
       deploy adapters: [tomcat9(credentialsId: '44f815ae-7ea1-43ee-a82a-8976970e85a9', path: '', url: 'http://172.31.17.27:8080')], contextPath: 'testapp', war: '**/*.war'
    }
-   stage('ContinuousTesting')
-   {
-       git 'https://github.com/gassama85/FunctionalTesting.git'
-       sh 'java -jar /home/ubuntu/.jenkins/workspace/scriptedpipeline/testing.jar'
-   }
-   stage('continuousDelivery')
-   {
-      deploy adapters: [tomcat9(credentialsId: '44f815ae-7ea1-43ee-a82a-8976970e85a9', path: '', url: 'http://172.31.81.45:8080')], contextPath: 'prodapp', war: '**/*.war'   
-   }
 }
