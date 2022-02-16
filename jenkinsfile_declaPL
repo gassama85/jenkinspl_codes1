@@ -1,0 +1,97 @@
+pipeline
+{
+    agent any
+    stages
+    {
+        stage('continuousDownload')
+        {
+            steps
+            {
+               script
+               {
+                   try
+                   {
+                       git 'https://github.com/gassama85/jenkinspl_codes.git'
+                   }
+                      catch(Exception e1) 
+                    {
+                      mail bcc: '', body: 'Jenkins failed to download the codes for the surveillance project', cc: '', from: '', replyTo: '', subject: 'Continuous Download failed', to: 'gassama85@gmail.com'
+                      exit(1)
+                    }
+               }
+            }
+        }
+        stage('continuousBuild')
+        {
+            steps
+            {
+               script
+               {
+                   try
+                   {
+                       sh 'mvn package'
+                   }
+                   catch(Exception e2)
+                   {
+                     mail bcc: '', body: 'Jenkins could not build the artifact for the surveillance project', cc: '', from: '', replyTo: '', subject: 'Continuous Build failed', to: 'gassama85@gmail.com'
+                     exit(1)
+                   }
+               }
+            }
+        }
+        stage('continuousDeployment')
+        {
+            steps
+            {
+               script
+               {
+                   try
+                   {
+                       deploy adapters: [tomcat9(credentialsId: '44f815ae-7ea1-43ee-a82a-8976970e85a9', path: '', url: 'http://172.31.17.27:8080')], contextPath: 'testapp', war: '**/*.war'
+                   }
+                   catch(Exception e3)
+                   {
+                     mail bcc: '', body: 'Jenkins could not deploy the artifact for the surveillance project into the QA server', cc: '', from: '', replyTo: '', subject: 'Continuous Deployment failed', to: 'gassama85@gmail.com'
+                     exit(1)
+                   }
+               }
+            }
+        }
+        stage('continuousTesting')
+        {
+            steps
+            {
+               script
+               {
+                   try
+                   {
+                     git 'https://github.com/gassama85/FunctionalTesting.git' 
+                     sh 'java -jar /home/ubuntu/.jenkins/workspace/DeclarativePipeline/testing.jar' 
+                   }
+                   catch(Exception e4)
+                   {
+                     mail bcc: '', body: 'Jenkins could not download the selenium testscripts for the surveillance project', cc: 'gassama85@yhaoo.com', from: '', replyTo: '', subject: 'Continuous testing failed', to: 'gassama85@gmail.com'
+                     exit(1)
+                   }
+               }
+            }
+        }
+        stage('continuousDelivery')
+        {
+            steps
+            {
+                script
+                {
+                    try
+                    {
+                      deploy adapters: [tomcat9(credentialsId: '44f815ae-7ea1-43ee-a82a-8976970e85a9', path: '', url: 'http://172.31.81.45:8080')], contextPath: 'prodapp', war: '**/*.war'  
+                    }
+                    catch(Exception e5)
+                    {
+                      mail bcc: '', body: 'Jenkins could not deploy the app into the prodserver for the surveillance project', cc: '', from: '', replyTo: '', subject: 'Continuous delivery failed', to: 'delivery@gmail.com'
+                    }
+                }
+            }
+        }
+    }
+}
