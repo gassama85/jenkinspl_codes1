@@ -2,7 +2,7 @@ node('master')
 {
    stage('ContinuousDownload') 
    {
-      git 'https://github.com/gassama85/jenkinspl_codes.git'
+      https://github.com/gassama85/jenkinspl_codes1.git
    }
    stage('ContinuousBuild')
    {
